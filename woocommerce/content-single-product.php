@@ -122,6 +122,7 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
     background:#fff;
     box-shadow:0 0 0 4px rgba(192,57,43,0.08);
 }
+.gs-fld select:disabled{background:#f5f5f5;color:#aaa;cursor:not-allowed;border-color:#eee;}
 .gs-fld i{
     position:absolute;
     right:15px;
@@ -171,22 +172,40 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
 .gs-bdl-badge-val{background:#e8fdf0;color:#27ae60;font-size:.72rem;padding:3px 10px;border-radius:10px;font-weight:800;margin-bottom:5px;display:inline-block}
 
 .gs-bvars-nested{width:100%;margin-top:18px;border-top:1.5px solid #f0f0f0;padding-top:18px;display:none}
-.gs-bvars-grid{display:flex;flex-direction:row-reverse;gap:18px;overflow:visible}
-.gs-bvar-unit{flex:1;min-width:0;border-left:1.5px solid #f5f5f5;padding-left:14px}
-.gs-bvar-unit:last-child{border-left:none;padding-left:0}
 
-.gs-attr-label{font-size:0.8rem;font-weight:700;color:#777;margin-bottom:8px;display:block}
+/* Step-by-step wizard */
+.gs-wizard{display:flex;flex-direction:column;gap:10px;width:100%}
+.gs-step{border:2px solid #eee;border-radius:16px;overflow:hidden;transition:border-color .25s,box-shadow .25s;background:#fff}
+.gs-step.active{border-color:var(--red);box-shadow:0 6px 20px var(--red-glow)}
+.gs-step.done{border-color:#27ae60;background:#f6fdf8}
+.gs-step-hd{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:default;user-select:none}
+.gs-step-num{width:26px;height:26px;border-radius:50%;background:#eee;color:#888;font-size:.75rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.25s}
+.gs-step.active .gs-step-num{background:var(--red);color:#fff}
+.gs-step.done .gs-step-num{background:#27ae60;color:#fff}
+.gs-step-title{flex:1;font-size:.85rem;font-weight:900;color:#333}
+.gs-step.active .gs-step-title{color:var(--red)}
+.gs-step.done .gs-step-title{color:#27ae60}
+.gs-step-val{font-size:.8rem;font-weight:900;color:#27ae60;background:#e8fdf0;padding:3px 10px;border-radius:8px;display:none}
+.gs-step.done .gs-step-val{display:block}
+.gs-step-check{font-size:.9rem;color:#27ae60;display:none;margin-right:auto}
+.gs-step.done .gs-step-check{display:block}
+.gs-step-bd{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(0.4,0,0.2,1),padding .3s}
+.gs-step.active .gs-step-bd{max-height:400px;padding:0 14px 16px}
+.gs-step-tiles{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
 
-.gs-vars-embedded{margin-top:18px}
-.gs-vars-ttl{font-weight:900;font-size:.85rem;color:#222;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .gs-t-wrap{display:flex;align-items:center;gap:8px;border:2px solid #eee;padding:7px 12px;border-radius:12px;cursor:pointer;background:#fff;transition:.25s;min-width:48px;justify-content:center}
 .gs-t-wrap.on{border-color:var(--red);background:#fff8f8;box-shadow:0 4px 12px var(--red-glow)}
-.gs-t-wrap.on .gs-t{background:var(--red);color:#fff;border-color:var(--red)}
-.gs-t{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid #eee;font-size:.7rem;font-weight:900;transition:.2s;background:#f9f9f9;color:#777}
 .gs-t-lbl{font-size:.82rem;color:#333;font-weight:800}
 
 .gs-t-missing{border-color:#ff4d4d!important;animation:gsPulse 0.8s infinite}
 @keyframes gsPulse{0%{box-shadow:0 0 0 0 rgba(255,77,77,0.4)}70%{box-shadow:0 0 0 10px rgba(255,77,77,0)}100%{box-shadow:0 0 0 0 rgba(255,77,77,0)}}
+
+/* Summary bar after all steps done */
+.gs-wizard-done{display:none;background:linear-gradient(135deg,#e8fdf0,#f0fff8);border:2px solid #27ae60;border-radius:14px;padding:12px 16px;margin-top:6px;text-align:center;color:#27ae60;font-weight:900;font-size:.9rem}
+.gs-wizard-done i{margin-left:6px}
+
+.gs-attr-label{font-size:0.8rem;font-weight:700;color:#777;margin-bottom:8px;display:block}
+.gs-vars-ttl{font-weight:900;font-size:.85rem;color:#222;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 
 /* Main CTA Button */
 .gs-final-checkout{
@@ -235,16 +254,70 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
 .gs-sticky-arrow{color:#ccc;transition:.3s}
 .gs-sticky-footer.on .gs-sticky-arrow{transform:rotate(180deg)}
 
-@media(max-width:768px){.gsp{flex-direction:column;gap:20px}.gsp-gal{flex:none}.gs-grid-2{grid-template-columns:1fr}}
+/* Gallery thumbnails */
+.gsp-thumbs{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;justify-content:flex-start}
+.gsp-thumb{width:72px;height:72px;border-radius:14px;overflow:hidden;cursor:pointer;border:2.5px solid transparent;background:var(--bg);transition:.2s;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
+.gsp-thumb.on{border-color:var(--red);box-shadow:0 4px 14px var(--red-glow)}
+.gsp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Mobile: title & price overlay on TOP of image */
+@media(max-width:768px){
+  .gsp{flex-direction:column;gap:20px}
+  .gsp-gal{flex:none;position:relative}
+  .gsp-main{border-radius:24px;overflow:hidden}
+  .gsp-mobile-overlay{
+    position:absolute;top:0;left:0;right:0;
+    background:linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.18) 70%, transparent 100%);
+    border-radius:24px 24px 0 0;
+    padding:14px 16px 22px;
+    display:flex;flex-direction:column;gap:4px;
+    pointer-events:none;
+  }
+  .gsp-mobile-overlay .gsp-title{color:#fff;font-size:1.3rem;margin:0;text-shadow:0 2px 8px rgba(0,0,0,0.5)}
+  .gsp-mobile-overlay .gsp-price{margin:0}
+  .gsp-mobile-overlay .gsp-price .new-p{color:#fff;font-size:1.6rem;text-shadow:0 2px 8px rgba(0,0,0,0.4)}
+  .gsp-mobile-overlay .gsp-price .old-p{color:rgba(255,255,255,0.75)}
+  /* Hide title/price from info section on mobile */
+  .gsp-info .gsp-title-desktop,.gsp-info .gsp-price-desktop{display:none}
+  .gs-grid-2{grid-template-columns:1fr}
+}
+@media(min-width:769px){
+  .gsp-mobile-overlay{display:none}
+}
 </style>
 
 <div id="product-<?php the_ID(); ?>" <?php wc_product_class('gsp'); ?>>
     <div class="gsp-gal">
-        <div class="gsp-main"><img id="gs-main-img" src="<?php echo esc_url(wp_get_attachment_image_url($main_img, 'large')); ?>"></div>
+        <div class="gsp-main">
+            <?php $main_img_src = $main_img ? wp_get_attachment_image_url($main_img, 'large') : wc_placeholder_img_src('large'); ?>
+            <img id="gs-main-img" src="<?php echo esc_url($main_img_src); ?>" alt="<?php the_title_attribute(); ?>" onerror="this.src='<?php echo esc_url(wc_placeholder_img_src()); ?>'">
+        </div>
+        <!-- Mobile overlay: title & price on image -->
+        <div class="gsp-mobile-overlay">
+            <h1 class="gsp-title"><?php the_title(); ?></h1>
+            <div class="gsp-price">
+                <?php if ($product->get_regular_price()) : ?><span class="old-p"><?php echo $product->get_regular_price(); ?> دج</span><?php endif; ?>
+                <span class="new-p"><?php echo $price; ?> دج</span>
+            </div>
+        </div>
+        <!-- Gallery thumbnails -->
+        <?php if (count($all_imgs) > 1) : ?>
+        <div class="gsp-thumbs">
+            <?php foreach ($all_imgs as $img_id) :
+                $thumb_url = wp_get_attachment_image_url($img_id, 'thumbnail');
+                $full_url  = wp_get_attachment_image_url($img_id, 'large');
+                if (!$thumb_url) continue;
+            ?>
+            <div class="gsp-thumb <?php echo $img_id === $main_img ? 'on' : ''; ?>" data-full="<?php echo esc_url($full_url); ?>">
+                <img src="<?php echo esc_url($thumb_url); ?>" alt="">
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
     </div>
     <div class="gsp-info">
-        <h1 class="gsp-title"><?php the_title(); ?></h1>
-        <div class="gsp-price">
+        <h1 class="gsp-title gsp-title-desktop"><?php the_title(); ?></h1>
+        <div class="gsp-price gsp-price-desktop">
             <?php if ($product->get_regular_price()) : ?><span class="old-p"><?php echo $product->get_regular_price(); ?> دج</span><?php endif; ?>
             <span class="new-p"><?php echo $price; ?> دج</span>
         </div>
@@ -283,14 +356,16 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
                     <select id="gf-state" required>
                         <option value="">اختر الولاية</option>
                         <?php foreach (get_algeria_wilayas() as $code => $w) : ?>
-                        <option value="<?php echo esc_attr($w['name']); ?>" data-office="<?php echo $w['office']; ?>" data-home="<?php echo $w['home']; ?>"><?php echo $code . ' - ' . esc_html($w['name']); ?></option>
+                        <option value="<?php echo esc_attr($w['name']); ?>" data-code="<?php echo esc_attr($code); ?>" data-office="<?php echo $w['office']; ?>" data-home="<?php echo $w['home']; ?>"><?php echo $code . ' - ' . esc_html($w['name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="gs-fld">
                     <label>البلدية *</label>
                     <i class="fa fa-map-marker-alt"></i>
-                    <input type="text" id="gf-city" placeholder="اسم البلدية" required>
+                    <select id="gf-city" required disabled>
+                        <option value="">اختر الولاية أولاً</option>
+                    </select>
                 </div>
             </div>
 
@@ -339,28 +414,7 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
                             <div class="gs-bdl-name-txt">شراء قطعة واحدة فقط</div>
                         </div>
                         <?php endif; ?>
-                        <div class="gs-bvars-nested" style="display:block">
-                            <div class="gs-bvars-grid">
-                                <div class="gs-bvar-unit">
-                                    <?php if ($has_bundles) : ?>
-                                    <div class="gs-vars-ttl" style="color:var(--red); font-size:0.85rem">📦 المنتج الأساسي:</div>
-                                    <?php endif; ?>
-                                    <?php foreach ($var_opts as $label => $data) : ?>
-                                    <div class="gsp-attr" style="margin-bottom:12px">
-                                        <?php $arLabel = (strpos(strtolower($label), 'color') !== false || strpos($label, 'لون') !== false) ? 'اللون' : 'المقاس'; ?>
-                                        <span class="gs-attr-label"><?php echo $arLabel; ?>:</span>
-                                        <div class="gsp-tiles gs-b-tiles" data-bitem="0" data-battr="<?php echo esc_attr($data['key']); ?>" style="display:flex; justify-content:flex-start; gap:6px; flex-wrap:wrap">
-                                            <?php foreach ($data['vals'] as $v) : ?>
-                                            <div class="gs-t-wrap" style="padding:4px 8px; min-width:50px; height:36px" data-value="<?php echo esc_attr($v['slug']); ?>">
-                                                <div class="gs-t-lbl" style="font-size:0.75rem"><?php echo esc_html($v['name']); ?></div>
-                                            </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="gs-bvars-nested"></div>
                     </div>
                 <?php endif; ?>
                 <?php foreach ($offers as $i => $off) : ?>
@@ -409,8 +463,38 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
 jQuery(function($){
     'use strict';
     var PID=<?php echo $pid;?>, BASE=<?php echo $price;?>, NONCE='<?php echo $nonce;?>', AJAX='<?php echo esc_url($ajax_url);?>', CARTURL='<?php echo esc_url($cart_url);?>';
+
+    /* Gallery thumbnail switcher */
+    $(document).on('click', '.gsp-thumb', function(){
+        var fullUrl = $(this).data('full');
+        if(!fullUrl) return;
+        $('#gs-main-img').attr('src', fullUrl);
+        $('.gsp-thumb').removeClass('on');
+        $(this).addClass('on');
+    });
     var VARS=<?php echo json_encode($variations);?>, ISVAR=<?php echo $is_var ? 'true' : 'false'; ?>, selVars={};
     var Wilayas=<?php echo json_encode(get_algeria_wilayas()); ?>;
+    var Communes=<?php echo json_encode(get_algeria_communes()); ?>;
+
+    /* Populate communes when wilaya changes */
+    function populateCommunes(){
+        var $stateOpt = $('#gf-state option:selected');
+        var code = parseInt($stateOpt.data('code'));
+        var $city = $('#gf-city');
+        $city.empty();
+        if(!code || !Communes[code]){
+            $city.prop('disabled', true).append('<option value="">اختر الولاية أولاً</option>');
+            return;
+        }
+        $city.prop('disabled', false).append('<option value="">اختر البلدية</option>');
+        $.each(Communes[code], function(_, name){
+            $city.append('<option value="'+name+'">'+name+'</option>');
+        });
+    }
+    $('#gf-state').on('change', function(){
+        populateCommunes();
+        updateSummary();
+    });
 
     function updateSummary(){
         var $b = $('.gs-bdl-item.on'), nm = $b.data('name')||'none';
@@ -448,47 +532,147 @@ jQuery(function($){
         updateSummary();
     });
 
-    $('#gf-state').on('change', updateSummary);
+    /* ===== STEP-BY-STEP WIZARD FOR BUNDLE SELECTION ===== */
+    var VAR_OPTS = <?php echo json_encode(array_map(function($label, $data) use ($var_opts) {
+        $isColor = strpos(strtolower($label), 'color') !== false || strpos($label, 'لون') !== false;
+        return [
+            'label' => $isColor ? 'اللون' : 'المقاس',
+            'key'   => $data['key'],
+            'vals'  => $data['vals'],
+        ];
+    }, array_keys($var_opts), $var_opts)); ?>;
 
-    $(document).on('click', '.gs-bdl-item', function(e){
-        if($(e.target).closest('.gs-t-wrap, .gs-bvars-nested').length) return;
-        $('.gs-t-wrap').removeClass('on');
-        $('.gs-bdl-item').removeClass('on').find('.gs-bvars-nested').slideUp(300);
-        $(this).addClass('on');
-        
-        var nm = $(this).data('name') || 'none';
+    /* Build wizard steps for a bundle item ($nested el, itemCount) */
+    function buildWizard($item){
+        var $nested = $item.find('.gs-bvars-nested');
+        $nested.empty();
 
+        if(!VAR_OPTS.length){ $nested.hide(); return; }
 
+        var items = parseInt($item.data('items')) || 1;
+        var steps = [];
 
-        var items = parseInt($(this).data('items')), $nested = $(this).find('.gs-bvars-nested');
-        
-        if(!$nested.children().length && nm !== 'none'){
-            var $grid = $('<div class="gs-bvars-grid"></div>');
-            for(var i=0; i<items; i++){
-                var $unit = $('<div class="gs-bvar-unit"></div>');
-                $unit.append('<div class="gs-vars-ttl" style="color:var(--red); font-size:0.85rem">📦 القطعة رقم '+(i+1)+':</div>');
-                <?php foreach ($var_opts as $label => $data) : ?>
-                var $attr = $('<div class="gsp-attr" style="margin-bottom:12px"></div>');
-                var arLabel = "<?php echo strpos(strtolower($label), 'color') !== false || strpos($label, 'لون') !== false ? 'اللون' : 'المقاس'; ?>";
-                $attr.append('<span class="gs-attr-label">'+arLabel+':</span>');
-                var $tiles = $('<div class="gsp-tiles gs-b-tiles" data-bitem="'+i+'" data-battr="<?php echo $data['key']; ?>" style="display:flex; justify-content:flex-start; gap:6px; flex-wrap:wrap"></div>');
-                <?php foreach ($data['vals'] as $v) : ?>
-                $tiles.append('<div class="gs-t-wrap" style="padding:4px 8px; min-width:50px; height:36px" data-value="<?php echo $v['slug']; ?>"><div class="gs-t-lbl" style="font-size:0.75rem"><?php echo $v['name']; ?></div></div>');
-                <?php endforeach; ?>
-                $attr.append($tiles); $unit.append($attr);
-                <?php endforeach; ?>
-                $grid.append($unit);
+        for(var i=0; i<items; i++){
+            for(var a=0; a<VAR_OPTS.length; a++){
+                steps.push({ itemIdx: i, attrIdx: a, attr: VAR_OPTS[a] });
             }
-            $nested.append($grid);
         }
-        $nested.slideDown(300);
-        updateSummary();
+
+        var $wizard = $('<div class="gs-wizard"></div>');
+        var totalSteps = steps.length;
+
+        $.each(steps, function(idx, step){
+            var itemLabel = (items > 1) ? ' — القطعة '+(step.itemIdx+1) : '';
+            var $step = $('<div class="gs-step" data-step="'+idx+'" data-bitem="'+step.itemIdx+'" data-battr="'+step.attr.key+'"></div>');
+
+            // Header
+            var $hd = $('<div class="gs-step-hd"></div>');
+            $hd.append('<div class="gs-step-num">'+(idx+1)+'</div>');
+            $hd.append('<div class="gs-step-title">'+step.attr.label+itemLabel+'</div>');
+            $hd.append('<div class="gs-step-val"></div>');
+            $hd.append('<div class="gs-step-check"><i class="fa fa-check-circle"></i></div>');
+
+            // Body with tiles
+            var $bd = $('<div class="gs-step-bd"></div>');
+            var $tiles = $('<div class="gs-step-tiles"></div>');
+            $.each(step.attr.vals, function(_, v){
+                $tiles.append('<div class="gs-t-wrap gs-wiz-tile" data-value="'+v.slug+'"><div class="gs-t-lbl">'+v.name+'</div></div>');
+            });
+            $bd.append($tiles);
+            $step.append($hd).append($bd);
+            $wizard.append($step);
+        });
+
+        $wizard.append('<div class="gs-wizard-done"><i class="fa fa-check-circle"></i> تم اختيار جميع المقاسات والألوان</div>');
+
+        $nested.append($wizard).show();
+        activateStep($nested, 0);
+    }
+
+    function activateStep($nested, idx){
+        var $steps = $nested.find('.gs-step');
+        $steps.removeClass('active');
+        if(idx < $steps.length){
+            $steps.eq(idx).addClass('active');
+            // Scroll to step smoothly
+            var $s = $steps.eq(idx);
+            setTimeout(function(){
+                var top = $s.offset().top - 80;
+                $('html,body').animate({scrollTop: top}, 350);
+            }, 120);
+        }
+    }
+
+    function wizardAllDone($nested){
+        var $steps = $nested.find('.gs-step');
+        return $steps.length > 0 && $steps.filter('.done').length === $steps.length;
+    }
+
+    /* Click a tile inside wizard */
+    $(document).on('click', '.gs-wiz-tile', function(e){
+        e.stopPropagation();
+        var $tile = $(this);
+        var $step = $tile.closest('.gs-step');
+        if(!$step.hasClass('active')) return;
+
+        // Mark selection
+        $step.find('.gs-wiz-tile').removeClass('on');
+        $tile.addClass('on');
+
+        var valName = $tile.find('.gs-t-lbl').text();
+        $step.find('.gs-step-val').text(valName);
+
+        // Animate done after short delay
+        setTimeout(function(){
+            $step.removeClass('active').addClass('done');
+            var $nested = $step.closest('.gs-bvars-nested');
+            var idx = parseInt($step.data('step'));
+            
+            if(wizardAllDone($nested)){
+                $nested.find('.gs-wizard-done').fadeIn(300);
+                updateSummary();
+            } else {
+                activateStep($nested, idx+1);
+            }
+        }, 220);
     });
 
-    $(document).on('click', '.gs-t-wrap', function(){
-        var $group = $(this).closest('.gsp-tiles');
-        $group.find('.gs-t-wrap').removeClass('on gs-t-missing');
-        $(this).addClass('on');
+    /* Clicking a done step re-opens it to change selection */
+    $(document).on('click', '.gs-step.done .gs-step-hd', function(e){
+        e.stopPropagation();
+        var $step = $(this).parent();
+        var $nested = $step.closest('.gs-bvars-nested');
+        var idx = parseInt($step.data('step'));
+
+        // Close all steps from this one onwards
+        var $steps = $nested.find('.gs-step');
+        $steps.each(function(i){
+            if(i >= idx){
+                $(this).removeClass('done active');
+                $(this).find('.gs-wiz-tile').removeClass('on');
+                $(this).find('.gs-step-val').text('');
+            }
+        });
+        $nested.find('.gs-wizard-done').hide();
+        activateStep($nested, idx);
+    });
+
+    /* Bundle item click — activate it and build wizard */
+    $(document).on('click', '.gs-bdl-item', function(e){
+        if($(e.target).closest('.gs-step,.gs-wiz-tile').length) return;
+
+        var $item = $(this);
+        if($item.hasClass('on')) return;
+
+        // Deactivate all bundles
+        $('.gs-bdl-item').removeClass('on').find('.gs-bvars-nested').slideUp(250).empty();
+        $('.gs-wizard-done').hide();
+
+        $item.addClass('on');
+        buildWizard($item);
+        $item.find('.gs-bvars-nested').hide().slideDown(300);
+
+        updateSummary();
     });
 
         function submitOrder(isDirectBuy){
@@ -501,21 +685,24 @@ jQuery(function($){
             
             var $b = $('.gs-bdl-item.on'), isBundle = ($b.data('name') !== 'none');
             var bd = {}, ok = true;
-            $('.gs-t-wrap').removeClass('gs-t-missing');
-            $b.find('.gs-bvar-unit').each(function(i){
-                bd[i] = {};
-                $(this).find('.gs-b-tiles').each(function(){
-                    var attr = $(this).data('battr'), $on = $(this).find('.gs-t-wrap.on');
-                    if(!$on.length){
-                        $(this).find('.gs-t-wrap').addClass('gs-t-missing');
-                        ok = false;
-                    } else {
-                        bd[i][attr] = $on.data('value');
-                    }
-                });
+
+            // Read selections from wizard steps
+            $b.find('.gs-step').each(function(){
+                var $step = $(this);
+                var itemIdx = parseInt($step.data('bitem'));
+                var attrKey = $step.data('battr');
+                var $selected = $step.find('.gs-wiz-tile.on');
+                if(!bd[itemIdx]) bd[itemIdx] = {};
+                if(!$selected.length){
+                    $step.removeClass('done').addClass('active');
+                    ok = false;
+                } else {
+                    bd[itemIdx][attrKey] = $selected.data('value');
+                }
             });
 
-            if(!ok){ alert('⚠️ يرجى اختيار اللون والمقاس لجميع المنتجات المحددة!'); return; }
+            if(!ok){ alert('⚠️ يرجى إكمال اختيار اللون والمقاس لجميع القطع!'); return; }
+            if(VAR_OPTS.length && !$b.find('.gs-step').length){ alert('⚠️ يرجى اختيار اللون والمقاس.'); return; }
 
             var $btn = isDirectBuy ? $('#gs-confirm-buy') : $('#gs-add-to-cart');
             var oldTxt = $btn.text();
@@ -555,6 +742,12 @@ jQuery(function($){
         }
 
         $(document).on('click', '#gs-confirm-buy', function(){ submitOrder(true); });
+
+    // Build wizard for initially selected bundle (if has attributes)
+    var $initItem = $('.gs-bdl-item.on');
+    if($initItem.length && VAR_OPTS.length){
+        buildWizard($initItem);
+    }
 
     updateSummary();
 });
