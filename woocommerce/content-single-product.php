@@ -235,7 +235,7 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
 .gs-sticky-arrow{color:#ccc;transition:.3s}
 .gs-sticky-footer.on .gs-sticky-arrow{transform:rotate(180deg)}
 
-@media(max-width:768px){.gsp{flex-direction:column-reverse;gap:20px}.gsp-gal{flex:none}.gs-grid-2{grid-template-columns:1fr}}
+@media(max-width:768px){.gsp{flex-direction:column;gap:20px}.gsp-gal{flex:none}.gs-grid-2{grid-template-columns:1fr}}
 </style>
 
 <div id="product-<?php the_ID(); ?>" <?php wc_product_class('gsp'); ?>>

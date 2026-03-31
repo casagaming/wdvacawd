@@ -12,7 +12,7 @@
  * Enqueue parent styles
  */
 function astra_child_enqueue_styles() {
-	wp_enqueue_style( 'astra-child-theme-css', get_stylesheet_directory_uri() . '/style.css', array('astra-theme-css'), ASTRA_THEME_VERSION, 'all' );
+        wp_enqueue_style( 'astra-child-theme-css', get_stylesheet_directory_uri() . '/style.css', array('astra-theme-css'), ASTRA_THEME_VERSION, 'all' );
 }
 add_action( 'wp_enqueue_scripts', 'astra_child_enqueue_styles', 15 );
 
@@ -2206,6 +2206,259 @@ function express_log($msg) {
     $file = $log_dir . '/express_debug.log';
     $date = date('Y-m-d H:i:s');
     file_put_contents($file, "[$date] $msg\n", FILE_APPEND);
+}
+
+
+// =============================================================
+// صفحة إعدادات المتجر - Gentle Shoes Store Settings
+// =============================================================
+
+add_action('admin_menu', function () {
+    add_menu_page(
+        'إعدادات المتجر',
+        'إعدادات المتجر',
+        'manage_options',
+        'gs-store-settings',
+        'gs_render_store_settings_page',
+        'dashicons-store',
+        25
+    );
+    add_submenu_page(
+        'gs-store-settings',
+        'صفحة من نحن',
+        '📄 صفحة من نحن',
+        'manage_options',
+        'gs-about-settings',
+        'gs_render_about_settings_page'
+    );
+});
+
+function gs_render_store_settings_page() {
+    if (!current_user_can('manage_options')) return;
+
+    $saved = false;
+    if (isset($_POST['gs_save']) && check_admin_referer('gs_settings_nonce')) {
+        update_option('gs_store_desc',  sanitize_textarea_field($_POST['gs_store_desc'] ?? ''));
+        update_option('gs_store_phone', sanitize_text_field($_POST['gs_store_phone'] ?? ''));
+        update_option('gs_store_wa',    sanitize_text_field($_POST['gs_store_wa'] ?? ''));
+        update_option('gs_store_addr',  sanitize_text_field($_POST['gs_store_addr'] ?? ''));
+        update_option('gs_store_fb',    esc_url_raw($_POST['gs_store_fb'] ?? ''));
+        update_option('gs_store_ig',    esc_url_raw($_POST['gs_store_ig'] ?? ''));
+        update_option('gs_store_tk',    esc_url_raw($_POST['gs_store_tk'] ?? ''));
+        $saved = true;
+    }
+
+    $desc  = get_option('gs_store_desc',  'Gentle Shoes هي وجهتك الأولى للأحذية العصرية التي تجمع بين الجودة العالية والراحة المثالية. نسعى دائماً لتقديم الأفضل لعملائنا في جميع أنحاء الجزائر.');
+    $phone = get_option('gs_store_phone', '');
+    $wa    = get_option('gs_store_wa',    '');
+    $addr  = get_option('gs_store_addr',  'الجزائر العاصمة');
+    $fb    = get_option('gs_store_fb',    '');
+    $ig    = get_option('gs_store_ig',    '');
+    $tk    = get_option('gs_store_tk',    '');
+    ?>
+    <style>
+        #gs-settings-wrap { font-family: 'Segoe UI', Tahoma, sans-serif; direction: rtl; max-width: 720px; }
+        #gs-settings-wrap h1 { font-size: 1.6rem; margin-bottom: 5px; }
+        #gs-settings-wrap .gs-card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 25px 30px; margin-bottom: 25px; }
+        #gs-settings-wrap .gs-card h2 { font-size: 1.1rem; border-bottom: 2px solid #8b0000; padding-bottom: 10px; margin-bottom: 20px; color: #8b0000; }
+        #gs-settings-wrap label { display: block; font-weight: 700; margin-bottom: 6px; color: #333; }
+        #gs-settings-wrap input[type=text],
+        #gs-settings-wrap input[type=url],
+        #gs-settings-wrap textarea { width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; font-family: inherit; box-sizing: border-box; }
+        #gs-settings-wrap textarea { min-height: 90px; resize: vertical; }
+        #gs-settings-wrap .gs-field { margin-bottom: 18px; }
+        #gs-settings-wrap small { color: #888; font-size: 0.82rem; }
+        #gs-settings-wrap .gs-save-btn { background: #8b0000; color: #fff; border: none; border-radius: 8px; padding: 13px 40px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        #gs-settings-wrap .gs-save-btn:hover { background: #a00; }
+        #gs-settings-wrap .gs-success { background: #eaffea; border: 1px solid #4caf50; color: #256029; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 700; }
+    </style>
+
+    <div id="gs-settings-wrap" class="wrap">
+        <h1>🏪 إعدادات المتجر – Gentle Shoes</h1>
+        <p style="color:#666; margin-bottom:25px;">قم بتعديل المعلومات التي تظهر في أسفل الموقع وفي صفحات التواصل.</p>
+
+        <?php if ($saved): ?>
+            <div class="gs-success">✅ تم حفظ الإعدادات بنجاح!</div>
+        <?php endif; ?>
+
+        <form method="post">
+            <?php wp_nonce_field('gs_settings_nonce'); ?>
+
+            <!-- نص التعريف -->
+            <div class="gs-card">
+                <h2>📝 نص التعريف بالمتجر</h2>
+                <div class="gs-field">
+                    <label>النص الذي يظهر في أسفل الصفحة (الفوتر)</label>
+                    <textarea name="gs_store_desc"><?php echo esc_textarea($desc); ?></textarea>
+                    <small>هذا النص يظهر تحت اسم المتجر في الجزء السفلي من الموقع.</small>
+                </div>
+            </div>
+
+            <!-- معلومات التواصل -->
+            <div class="gs-card">
+                <h2>📞 معلومات التواصل</h2>
+                <div class="gs-field">
+                    <label>رقم الهاتف</label>
+                    <input type="text" name="gs_store_phone" value="<?php echo esc_attr($phone); ?>" placeholder="مثال: 0550 00 00 00">
+                </div>
+                <div class="gs-field">
+                    <label>رقم واتساب</label>
+                    <input type="text" name="gs_store_wa" value="<?php echo esc_attr($wa); ?>" placeholder="مثال: 213550000000">
+                    <small>أدخل الرقم مع رمز الدولة بدون + (مثال: 213550000000)</small>
+                </div>
+                <div class="gs-field">
+                    <label>الموقع / العنوان</label>
+                    <input type="text" name="gs_store_addr" value="<?php echo esc_attr($addr); ?>" placeholder="مثال: الجزائر العاصمة، حي...">
+                </div>
+            </div>
+
+            <!-- روابط التواصل الاجتماعي -->
+            <div class="gs-card">
+                <h2>📱 روابط التواصل الاجتماعي</h2>
+                <div class="gs-field">
+                    <label>رابط فيسبوك</label>
+                    <input type="url" name="gs_store_fb" value="<?php echo esc_attr($fb); ?>" placeholder="https://facebook.com/your-page">
+                </div>
+                <div class="gs-field">
+                    <label>رابط إنستغرام</label>
+                    <input type="url" name="gs_store_ig" value="<?php echo esc_attr($ig); ?>" placeholder="https://instagram.com/your-page">
+                </div>
+                <div class="gs-field">
+                    <label>رابط تيك توك</label>
+                    <input type="url" name="gs_store_tk" value="<?php echo esc_attr($tk); ?>" placeholder="https://tiktok.com/@your-page">
+                </div>
+            </div>
+
+            <button type="submit" name="gs_save" class="gs-save-btn">💾 حفظ الإعدادات</button>
+        </form>
+    </div>
+    <?php
+}
+
+
+// =============================================================
+// صفحة إعدادات "من نحن" - About Page Settings
+// =============================================================
+
+function gs_render_about_settings_page() {
+    if (!current_user_can('manage_options')) return;
+
+    $saved = false;
+    if (isset($_POST['gs_about_save']) && check_admin_referer('gs_about_nonce')) {
+        update_option('gs_about_hero_title',    sanitize_text_field($_POST['gs_about_hero_title'] ?? ''));
+        update_option('gs_about_hero_subtitle', sanitize_textarea_field($_POST['gs_about_hero_subtitle'] ?? ''));
+        update_option('gs_about_main_content',  wp_kses_post($_POST['gs_about_main_content'] ?? ''));
+        update_option('gs_about_main_heading',  sanitize_text_field($_POST['gs_about_main_heading'] ?? ''));
+        update_option('gs_about_social_title',  sanitize_text_field($_POST['gs_about_social_title'] ?? ''));
+        update_option('gs_about_social_desc',   sanitize_textarea_field($_POST['gs_about_social_desc'] ?? ''));
+        update_option('gs_about_cta_heading',   sanitize_text_field($_POST['gs_about_cta_heading'] ?? ''));
+        update_option('gs_about_cta_desc',      sanitize_textarea_field($_POST['gs_about_cta_desc'] ?? ''));
+        update_option('gs_about_cta_btn',       sanitize_text_field($_POST['gs_about_cta_btn'] ?? ''));
+        $saved = true;
+    }
+
+    $hero_title    = get_option('gs_about_hero_title',    'من نحن');
+    $hero_subtitle = get_option('gs_about_hero_subtitle', 'نسعى دائماً لتقديم الأفضل لعملائنا في جميع أنحاء الجزائر.');
+    $main_content  = get_option('gs_about_main_content',  '');
+    $main_heading  = get_option('gs_about_main_heading',  'قصتنا مع الأحذية');
+    $social_title  = get_option('gs_about_social_title',  'انضم إلى مجتمعنا');
+    $social_desc   = get_option('gs_about_social_desc',   '');
+    $cta_heading   = get_option('gs_about_cta_heading',   'هل أنت مستعد للأناقة؟');
+    $cta_desc      = get_option('gs_about_cta_desc',      'مجموعتنا الجديدة من الأحذية الفاخرة بانتظارك الآن.');
+    $cta_btn       = get_option('gs_about_cta_btn',       'اكتشف كوليكشن الأحذية 👟');
+    ?>
+    <style>
+        #gs-about-wrap { font-family: 'Segoe UI', Tahoma, sans-serif; direction: rtl; max-width: 750px; }
+        #gs-about-wrap h1 { font-size: 1.6rem; margin-bottom: 5px; }
+        #gs-about-wrap .gs-card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 25px 30px; margin-bottom: 25px; }
+        #gs-about-wrap .gs-card h2 { font-size: 1.1rem; border-bottom: 2px solid #8b0000; padding-bottom: 10px; margin-bottom: 20px; color: #8b0000; }
+        #gs-about-wrap label { display: block; font-weight: 700; margin-bottom: 6px; color: #333; }
+        #gs-about-wrap input[type=text],
+        #gs-about-wrap textarea { width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; font-family: inherit; box-sizing: border-box; }
+        #gs-about-wrap textarea { min-height: 100px; resize: vertical; }
+        #gs-about-wrap textarea.tall { min-height: 180px; }
+        #gs-about-wrap .gs-field { margin-bottom: 18px; }
+        #gs-about-wrap small { color: #888; font-size: 0.82rem; display: block; margin-top: 4px; }
+        #gs-about-wrap .gs-save-btn { background: #8b0000; color: #fff; border: none; border-radius: 8px; padding: 13px 40px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+        #gs-about-wrap .gs-save-btn:hover { background: #a00; }
+        #gs-about-wrap .gs-success { background: #eaffea; border: 1px solid #4caf50; color: #256029; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 700; }
+        #gs-about-wrap .gs-section-label { background: #f9f0f0; color: #8b0000; font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
+    </style>
+
+    <div id="gs-about-wrap" class="wrap">
+        <h1>📄 إعدادات صفحة "من نحن"</h1>
+        <p style="color:#666; margin-bottom:25px;">عدّل جميع نصوص صفحة "من نحن" من هنا مباشرة.</p>
+
+        <?php if ($saved): ?>
+            <div class="gs-success">✅ تم حفظ التعديلات بنجاح!</div>
+        <?php endif; ?>
+
+        <form method="post">
+            <?php wp_nonce_field('gs_about_nonce'); ?>
+
+            <!-- القسم العلوي -->
+            <div class="gs-card">
+                <h2>🖼️ القسم العلوي (Hero)</h2>
+                <div class="gs-field">
+                    <span class="gs-section-label">العنوان الكبير</span>
+                    <label>العنوان الرئيسي</label>
+                    <input type="text" name="gs_about_hero_title" value="<?php echo esc_attr($hero_title); ?>" placeholder="من نحن">
+                </div>
+                <div class="gs-field">
+                    <span class="gs-section-label">النص التوضيحي</span>
+                    <label>النص أسفل العنوان</label>
+                    <textarea name="gs_about_hero_subtitle"><?php echo esc_textarea($hero_subtitle); ?></textarea>
+                </div>
+            </div>
+
+            <!-- المحتوى الرئيسي -->
+            <div class="gs-card">
+                <h2>📝 قسم قصة المتجر</h2>
+                <div class="gs-field">
+                    <label>عنوان القسم</label>
+                    <input type="text" name="gs_about_main_heading" value="<?php echo esc_attr($main_heading); ?>" placeholder="قصتنا مع الأحذية">
+                </div>
+                <div class="gs-field">
+                    <label>المحتوى / النص</label>
+                    <textarea name="gs_about_main_content" class="tall"><?php echo esc_textarea($main_content); ?></textarea>
+                    <small>اكتب هنا قصة المتجر والمعلومات التي تريد عرضها. يمكنك استخدام سطر جديد للفقرات.</small>
+                </div>
+            </div>
+
+            <!-- قسم التواصل الاجتماعي -->
+            <div class="gs-card">
+                <h2>📱 قسم التواصل الاجتماعي</h2>
+                <div class="gs-field">
+                    <label>عنوان القسم</label>
+                    <input type="text" name="gs_about_social_title" value="<?php echo esc_attr($social_title); ?>" placeholder="انضم إلى مجتمعنا">
+                </div>
+                <div class="gs-field">
+                    <label>النص التوضيحي (اختياري)</label>
+                    <textarea name="gs_about_social_desc"><?php echo esc_textarea($social_desc); ?></textarea>
+                </div>
+            </div>
+
+            <!-- قسم الدعوة للشراء -->
+            <div class="gs-card">
+                <h2>🛒 قسم الدعوة للشراء (CTA)</h2>
+                <div class="gs-field">
+                    <label>العنوان</label>
+                    <input type="text" name="gs_about_cta_heading" value="<?php echo esc_attr($cta_heading); ?>" placeholder="هل أنت مستعد للأناقة؟">
+                </div>
+                <div class="gs-field">
+                    <label>النص</label>
+                    <textarea name="gs_about_cta_desc"><?php echo esc_textarea($cta_desc); ?></textarea>
+                </div>
+                <div class="gs-field">
+                    <label>نص الزر</label>
+                    <input type="text" name="gs_about_cta_btn" value="<?php echo esc_attr($cta_btn); ?>" placeholder="اكتشف كوليكشن الأحذية">
+                </div>
+            </div>
+
+            <button type="submit" name="gs_about_save" class="gs-save-btn">💾 حفظ التعديلات</button>
+        </form>
+    </div>
+    <?php
 }
 
 

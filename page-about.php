@@ -4,20 +4,22 @@
  */
 get_header(); 
 
-$post_id = get_the_ID();
-$f_id = get_option('page_on_front');
+// قراءة بيانات صفحة "من نحن" من الإعدادات
+$hero_title    = get_option('gs_about_hero_title',    'من نحن');
+$hero_subtitle = get_option('gs_about_hero_subtitle', 'نسعى دائماً لتقديم الأفضل لعملائنا في جميع أنحاء الجزائر.');
+$main_content  = get_option('gs_about_main_content',  '');
+$main_heading  = get_option('gs_about_main_heading',  'قصتنا مع الأحذية');
+$social_title  = get_option('gs_about_social_title',  'انضم إلى مجتمعنا');
+$social_desc   = get_option('gs_about_social_desc',   '');
+$cta_heading   = get_option('gs_about_cta_heading',   'هل أنت مستعد للأناقة؟');
+$cta_desc      = get_option('gs_about_cta_desc',      'مجموعتنا الجديدة من الأحذية الفاخرة بانتظارك الآن.');
+$cta_btn       = get_option('gs_about_cta_btn',       'اكتشف كوليكشن الأحذية 👟');
 
-// Fetch Custom Meta for About Page
-$about_title    = get_post_meta($post_id, '_about_hero_title', true) ?: 'من نحن';
-$about_subtitle = get_post_meta($post_id, '_about_hero_subtitle', true);
-$about_logo     = get_post_meta($post_id, '_about_custom_logo', true) ?: get_stylesheet_directory_uri() . '/assets/main-logo.png';
-$about_extra    = get_post_meta($post_id, '_about_extra_desc', true);
-
-// Global Social Links
-$fb = get_post_meta($f_id, '_store_fb', true);
-$ig = get_post_meta($f_id, '_store_ig', true);
-$tk = get_post_meta($f_id, '_store_tk', true);
-$wa = get_post_meta($f_id, '_store_wa', true);
+// روابط التواصل الاجتماعي
+$fb = get_option('gs_store_fb', '');
+$ig = get_option('gs_store_ig', '');
+$tk = get_option('gs_store_tk', '');
+$wa = get_option('gs_store_wa', '');
 ?>
 
 <!-- Container Break for Full Width -->
@@ -32,7 +34,6 @@ $wa = get_post_meta($f_id, '_store_wa', true);
     background: radial-gradient(circle, rgba(184,0,0,0.15) 0%, rgba(0,0,0,0) 70%); 
     pointer-events: none; 
 }
-.brand-logo-large { width: 350px; height: auto; margin-bottom: 40px; filter: drop-shadow(0 15px 40px rgba(0,0,0,0.6)); position: relative; z-index: 2; }
 .about-hero h1 { font-size: 5rem; font-weight: 950; margin: 0 0 20px; letter-spacing: -2px; position: relative; z-index: 2; line-height: 1.1; }
 .about-hero p { font-size: 1.6rem; color: #ccc; max-width: 850px; margin: 0 auto; line-height: 1.6; position: relative; z-index: 2; font-weight: 500; }
 
@@ -40,6 +41,7 @@ $wa = get_post_meta($f_id, '_store_wa', true);
 .about-content-area { padding: 100px 20px; direction: rtl; font-family: 'Cairo', sans-serif; background: #fff; }
 .about-editor-content { max-width: 1000px; margin: 0 auto 100px; font-size: 1.4rem; line-height: 2.2; color: #444; }
 .about-editor-content h2 { font-size: 3.2rem; font-weight: 950; color: #111; margin-bottom: 50px; border-right: 10px solid var(--brand-red); padding-right: 30px; line-height: 1.2; }
+.about-main-text { font-size: 1.2rem; line-height: 2; color: #555; white-space: pre-line; }
 
 /* 3. Professional Social Connect Section */
 .social-connect-section { background: #fdfdfd; padding: 100px 5%; text-align: center; border-radius: 60px; margin: 0 5% 100px; border: 1px solid #f0f0f0; box-shadow: 0 20px 80px rgba(0,0,0,0.02); }
@@ -76,7 +78,6 @@ $wa = get_post_meta($f_id, '_store_wa', true);
 
 @media (max-width: 768px) {
     .about-hero h1 { font-size: 3.5rem; }
-    .brand-logo-large { width: 250px; }
     .social-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
     .social-box { padding: 25px 15px; }
     .about-final-cta h2 { font-size: 2.5rem; }
@@ -85,24 +86,33 @@ $wa = get_post_meta($f_id, '_store_wa', true);
 
 <div class="about-hero">
     <div class="ast-container" style="max-width: 1200px; margin: 0 auto;">
-        <img src="<?php echo esc_url($about_logo); ?>" alt="Premium Brand" class="brand-logo-large">
-        <h1><?php echo esc_html($about_title); ?></h1>
-        <?php if ($about_subtitle): ?>
-            <p><?php echo esc_html($about_subtitle); ?></p>
+        <h1><?php echo esc_html($hero_title); ?></h1>
+        <?php if ($hero_subtitle): ?>
+            <p><?php echo nl2br(esc_html($hero_subtitle)); ?></p>
         <?php endif; ?>
     </div>
 </div>
 
 <div class="about-content-area">
     <div class="ast-container" style="max-width: 1200px; margin: 0 auto;">
-        <div class="about-editor-content">
-            <?php if (have_posts()) : while (have_posts()) : the_post(); the_content(); endwhile; endif; ?>
-        </div>
 
+        <!-- قسم قصة المتجر -->
+        <?php if ($main_heading || $main_content): ?>
+        <div class="about-editor-content">
+            <?php if ($main_heading): ?>
+                <h2><?php echo esc_html($main_heading); ?></h2>
+            <?php endif; ?>
+            <?php if ($main_content): ?>
+                <div class="about-main-text"><?php echo wp_kses_post($main_content); ?></div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- قسم التواصل الاجتماعي -->
         <section class="social-connect-section">
-            <h2>انضم إلى مجتمعنا</h2>
-            <?php if ($about_extra): ?>
-                <div class="social-extra-desc"><?php echo nl2br(esc_html($about_extra)); ?></div>
+            <h2><?php echo esc_html($social_title); ?></h2>
+            <?php if ($social_desc): ?>
+                <div class="social-extra-desc"><?php echo nl2br(esc_html($social_desc)); ?></div>
             <?php endif; ?>
 
             <div class="social-grid">
@@ -128,7 +138,7 @@ $wa = get_post_meta($f_id, '_store_wa', true);
                 <?php endif; ?>
 
                 <?php if ($wa): ?>
-                <a href="https://wa.me/<?php echo esc_attr($wa); ?>" target="_blank" class="social-box wa">
+                <a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $wa)); ?>" target="_blank" class="social-box wa">
                     <i class="fa fa-whatsapp"></i>
                     <span>واتساب</span>
                 </a>
@@ -136,11 +146,13 @@ $wa = get_post_meta($f_id, '_store_wa', true);
             </div>
         </section>
 
+        <!-- قسم الدعوة للشراء -->
         <div class="about-final-cta">
-            <h2>هل أنت مستعد للأناقة؟</h2>
-            <p style="font-size: 1.5rem; margin-bottom: 40px; opacity: 0.9;">مجموعتنا الجديدة من الأحذية الفاخرة بانتظارك الآن.</p>
-            <a href="<?php echo home_url('/shop'); ?>" class="about-btn">اكتشف كوليكشن الأحذية 👟</a>
+            <h2><?php echo esc_html($cta_heading); ?></h2>
+            <p style="font-size: 1.5rem; margin-bottom: 40px; opacity: 0.9;"><?php echo esc_html($cta_desc); ?></p>
+            <a href="<?php echo home_url('/shop'); ?>" class="about-btn"><?php echo esc_html($cta_btn); ?></a>
         </div>
+
     </div>
 </div>
 

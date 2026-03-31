@@ -4,22 +4,25 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+        exit; // Exit if accessed directly.
 }
 
 ?>
-		</div> <!-- ast-container -->
-	</div><!-- #content -->
+                </div> <!-- ast-container -->
+        </div><!-- #content -->
 
 <?php 
-$f_id = get_option('page_on_front');
-$fb = get_post_meta($f_id, '_store_fb', true);
-$ig = get_post_meta($f_id, '_store_ig', true);
-$tk = get_post_meta($f_id, '_store_tk', true);
-$wa = get_post_meta($f_id, '_store_wa', true);
-$phone = get_post_meta($f_id, '_store_phone', true);
-$addr = get_post_meta($f_id, '_store_addr', true);
-$f_logo = get_post_meta($f_id, '_store_footer_logo', true) ?: get_stylesheet_directory_uri() . '/assets/main-logo.png';
+// قراءة بيانات المتجر من الإعدادات أولاً، ثم من الـ post meta كـ fallback
+$f_id  = get_option('page_on_front');
+$desc  = get_option('gs_store_desc',  get_post_meta($f_id, '_store_desc', true) ?: 'Gentle Shoes هي وجهتك الأولى للأحذية العصرية التي تجمع بين الجودة العالية والراحة المثالية. نسعى دائماً لتقديم الأفضل لعملائنا في جميع أنحاء الجزائر.');
+$phone = get_option('gs_store_phone', get_post_meta($f_id, '_store_phone', true));
+$wa    = get_option('gs_store_wa',    get_post_meta($f_id, '_store_wa', true));
+$addr  = get_option('gs_store_addr',  get_post_meta($f_id, '_store_addr', true) ?: 'الجزائر العاصمة');
+$fb    = get_option('gs_store_fb',    get_post_meta($f_id, '_store_fb', true));
+$ig    = get_option('gs_store_ig',    get_post_meta($f_id, '_store_ig', true));
+$tk    = get_option('gs_store_tk',    get_post_meta($f_id, '_store_tk', true));
+
+$display_phone = $phone ?: $wa;
 ?>
 
 <footer class="site-footer" style="background-color: #111; color: #eee; padding: 80px 20px 40px; font-family: 'Cairo', sans-serif; border-top: 5px solid var(--brand-red);" dir="rtl">
@@ -28,15 +31,13 @@ $f_logo = get_post_meta($f_id, '_store_footer_logo', true) ?: get_stylesheet_dir
             
             <!-- Column 1: Brand -->
             <div style="flex: 1.5; min-width: 300px;">
-                <img src="<?php echo esc_url($f_logo); ?>" alt="Gentle Shoes" style="height: 90px; width: auto; filter: brightness(0) invert(1); margin-bottom: 25px; object-fit: contain;">
                 <p style="color: #aaa; line-height: 1.8; font-size: 1rem; margin-bottom: 30px;">
-                    Gentle Shoes هي وجهتك الأولى للأحذية العصرية التي تجمع بين الجودة العالية والراحة المثالية. نسعى دائماً لتقديم الأفضل لعملائنا في جميع أنحاء الجزائر.
+                    <?php echo esc_html($desc); ?>
                 </p>
                 <div style="display: flex; gap: 15px;">
                     <?php if ($fb): ?><a href="<?php echo esc_url($fb); ?>" target="_blank" style="width: 45px; height: 45px; background: #3b5998; color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.3s; font-size: 1.2rem;"><i class="fa fa-facebook"></i></a><?php endif; ?>
                     <?php if ($ig): ?><a href="<?php echo esc_url($ig); ?>" target="_blank" style="width: 45px; height: 45px; background: #e1306c; color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.3s; font-size: 1.2rem;"><i class="fa fa-instagram"></i></a><?php endif; ?>
                     <?php if ($tk): ?><a href="<?php echo esc_url($tk); ?>" target="_blank" style="width: 45px; height: 45px; background: #000; color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.3s; font-size: 1.2rem; border: 1px solid #333;"><i class="fa fa-tiktok"></i></a><?php endif; ?>
-
                 </div>
             </div>
 
@@ -54,18 +55,31 @@ $f_logo = get_post_meta($f_id, '_store_footer_logo', true) ?: get_stylesheet_dir
             <!-- Column 3: Contact Info -->
             <div style="flex: 1.2; min-width: 250px;">
                 <h3 style="color: #fff; margin-bottom: 30px; font-weight: 900; font-size: 1.2rem; border-right: 4px solid var(--brand-red); padding-right: 15px;">تواصل معنا</h3>
+                
+                <?php if ($display_phone): ?>
                 <div style="margin-bottom: 25px;">
                     <p style="color: #888; font-size: 0.9rem; margin-bottom: 5px;">رقم الهاتف:</p>
                     <div style="display: flex; align-items: center; gap: 12px; color: #fff; font-weight: 900; font-size: 1.3rem;">
                         <i class="fa fa-phone" style="color: var(--brand-red);"></i>
-                        <span style="direction: ltr;"><?php echo esc_html($phone ?: $wa); ?></span>
+                        <span style="direction: ltr;"><?php echo esc_html($display_phone); ?></span>
                     </div>
                 </div>
+                <?php endif; ?>
+
+                <?php if ($wa): ?>
+                <div style="margin-bottom: 25px;">
+                    <a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $wa)); ?>" target="_blank"
+                       style="display: inline-flex; align-items: center; gap: 10px; background: #25D366; color: #fff; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 1rem;">
+                        <i class="fa fa-whatsapp" style="font-size: 1.3rem;"></i> تواصل واتساب
+                    </a>
+                </div>
+                <?php endif; ?>
+
                 <div>
                     <p style="color: #888; font-size: 0.9rem; margin-bottom: 5px;">الموقع:</p>
                     <div style="display: flex; align-items: center; gap: 12px; color: #bbb; font-size: 1.1rem; line-height: 1.4;">
                         <i class="fa fa-map-marker" style="color: var(--brand-red); font-size: 1.4rem;"></i>
-                        <span><?php echo esc_html($addr ?: 'الجزائر العاصمة'); ?></span>
+                        <span><?php echo esc_html($addr); ?></span>
                     </div>
                 </div>
             </div>
