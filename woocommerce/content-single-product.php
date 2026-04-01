@@ -106,7 +106,7 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
 .gs-fld input,.gs-fld select{
     width:100%;
     padding:13px 44px 13px 14px;
-    border-radius:14px;
+    border-radius:14px !important;
     border:2px solid #eee;
     background:#fafafa;
     font-family:'Cairo',sans-serif;
@@ -116,6 +116,7 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
     outline:none;
     -webkit-appearance:none;
     appearance:none;
+    box-sizing:border-box;
 }
 .gs-fld input:focus,.gs-fld select:focus{
     border-color:var(--red);
@@ -230,6 +231,27 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
     gap:10px;
 }
 .gs-final-checkout:hover{transform:translateY(-3px);box-shadow:0 15px 35px var(--red-glow)}
+/* Add to Cart Button */
+.gs-add-to-cart-btn{
+    width:100%;
+    padding:15px 18px;
+    border-radius:20px;
+    border:2px solid var(--red);
+    background:#fff;
+    color:var(--red);
+    font-family:'Cairo',sans-serif;
+    font-weight:800;
+    font-size:1rem;
+    cursor:pointer;
+    text-align:center;
+    transition:.3s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+}
+.gs-add-to-cart-btn:hover{background:var(--red);color:#fff;transform:translateY(-2px);}
+.gs-add-to-cart-btn:disabled{opacity:.5;pointer-events:none;}
 .gs-final-checkout:disabled{opacity:.6;cursor:not-allowed;transform:none}
 .gs-price-sticker{
     position:absolute;
@@ -333,19 +355,19 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
             <div class="gs-fld">
                 <label>الاسم الكامل *</label>
                 <i class="fa fa-user"></i>
-                <input type="text" id="gf-name" placeholder="مثال: أحمد محمد" required>
+                <input type="text" id="gf-name" placeholder="اسمك هنا" required>
             </div>
 
             <div class="gs-grid-2" style="margin-bottom:12px">
                 <div class="gs-fld">
                     <label>رقم الهاتف *</label>
                     <i class="fa fa-phone"></i>
-                    <input type="tel" id="gf-phone" placeholder="05XX XXX XXX" required>
+                    <input type="tel" id="gf-phone" placeholder="05XX XXX XXX" maxlength="10" required>
                 </div>
                 <div class="gs-fld">
                     <label>رقم ثانٍ (اختياري)</label>
-                    <i class="fa fa-phone-square"></i>
-                    <input type="tel" id="gf-phone2" placeholder="06XX XXX XXX">
+                    <i class="fa fa-phone"></i>
+                    <input type="tel" id="gf-phone2" placeholder="06XX XXX XXX" maxlength="10">
                 </div>
             </div>
 
@@ -377,7 +399,7 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
                     <div class="gs-dot"></div>
                     <i class="fa fa-envelope-o"></i>
                     <span>توصيل للمكتب</span>
-                    <small>أقرب مكتب ياليدين</small>
+                    <small>أقرب مكتب Maystro Delivery</small>
                 </div>
                 <div class="gs-delivery-opt" data-method="home">
                     <div class="gs-dot"></div>
@@ -440,7 +462,10 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
                     اضغط لإرسال طلبك الآن 🚀
                 </button>
 
-
+                <button type="button" class="gs-add-to-cart-btn" id="gs-add-to-cart" <?php echo ($hide_main === 'yes') ? 'style="display:none"' : ''; ?>>
+                    <i class="fa fa-shopping-cart"></i>
+                    أضف للعربة
+                </button>
 
                 <div style="text-align:center; color:#aaa; font-size:0.82rem; font-weight:700;">
                     <i class="fa fa-shield" style="color:#28a745;"></i> دفع عند الاستلام — توصيل لـ 58 ولاية
@@ -463,6 +488,12 @@ $p_img    = wp_get_attachment_image_url($main_img, 'thumbnail');
 jQuery(function($){
     'use strict';
     var PID=<?php echo $pid;?>, BASE=<?php echo $price;?>, NONCE='<?php echo $nonce;?>', AJAX='<?php echo esc_url($ajax_url);?>', CARTURL='<?php echo esc_url($cart_url);?>';
+
+    /* Phone fields: digits only, max 10 */
+    $(document).on('input', '#gf-phone, #gf-phone2', function(){
+        var val = $(this).val().replace(/\D/g, '').slice(0, 10);
+        $(this).val(val);
+    });
 
     /* Gallery thumbnail switcher */
     $(document).on('click', '.gsp-thumb', function(){
@@ -657,6 +688,15 @@ jQuery(function($){
         activateStep($nested, idx);
     });
 
+    /* Toggle add-to-cart button based on bundle selection */
+    function toggleCartBtn(isNoneBundle){
+        if(isNoneBundle){
+            $('#gs-add-to-cart').slideDown(200);
+        } else {
+            $('#gs-add-to-cart').slideUp(200);
+        }
+    }
+
     /* Bundle item click — activate it and build wizard */
     $(document).on('click', '.gs-bdl-item', function(e){
         if($(e.target).closest('.gs-step,.gs-wiz-tile').length) return;
@@ -672,14 +712,21 @@ jQuery(function($){
         buildWizard($item);
         $item.find('.gs-bvars-nested').hide().slideDown(300);
 
+        toggleCartBtn($item.data('name') === 'none');
         updateSummary();
     });
+
+    /* Add to Cart button click */
+    $(document).on('click', '#gs-add-to-cart', function(){ submitOrder(false); });
 
         function submitOrder(isDirectBuy){
             var name = $('#gf-name').val(), phone = $('#gf-phone').val(), state = $('#gf-state').val(), city = $('#gf-city').val();
             
             if(isDirectBuy){
                 if(!name || !phone || !state || !city){ alert('يرجى ملء جميع الحقول المطلوبة.'); return; }
+                if(phone.replace(/\D/g,'').length !== 10){ alert('رقم الهاتف يجب أن يكون 10 أرقام فقط.'); $('#gf-phone').focus(); return; }
+                var phone2 = $('#gf-phone2').val();
+                if(phone2 && phone2.replace(/\D/g,'').length !== 10){ alert('رقم الهاتف الثاني يجب أن يكون 10 أرقام فقط.'); $('#gf-phone2').focus(); return; }
                 if($('#gf-shipping').val() === 'home' && !$('#gf-addr').val()){ alert('يرجى إدخال عنوان المنزل.'); return; }
             }
             
@@ -747,6 +794,11 @@ jQuery(function($){
     var $initItem = $('.gs-bdl-item.on');
     if($initItem.length && VAR_OPTS.length){
         buildWizard($initItem);
+    }
+
+    // Set initial cart button visibility based on selected bundle
+    if($initItem.length){
+        toggleCartBtn($initItem.data('name') === 'none');
     }
 
     updateSummary();

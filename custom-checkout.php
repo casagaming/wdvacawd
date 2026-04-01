@@ -443,7 +443,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
                             <div class="ship-check"></div>
                             <i class="fa fa-envelope-o"></i>
                             <h4>توصيل للمكتب</h4>
-                            <p>الاستلام من أقرب مكتب ياليدين</p>
+                            <p>الاستلام من أقرب مكتب Maystro Delivery</p>
                         </div>
                         <div class="ship-opt" data-method="home">
                             <div class="ship-check"></div>

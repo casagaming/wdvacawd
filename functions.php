@@ -1099,6 +1099,12 @@ function handle_process_express_checkout() {
                             }
                         }
                     }
+                } elseif ($bundle_info && !empty($bundle_info['selections']) && isset($bundle_info['selections'][0])) {
+                    foreach ($bundle_info['selections'][0] as $attr_key => $attr_val) {
+                        if (strpos($attr_key, 'attribute_') === 0) {
+                            $var_data[$attr_key] = sanitize_text_field($attr_val);
+                        }
+                    }
                 }
                 if ($product->is_type('variable')) {
                     $data_store = WC_Data_Store::load( 'product' );
@@ -1110,12 +1116,15 @@ function handle_process_express_checkout() {
                     foreach ($bundle_info['selections'] as $selection) {
                         $b_var_data = array();
                         $attributes = $product->get_attributes();
-                        foreach ($selection as $label => $attr_val) {
-                            foreach ($attributes as $slug => $attr_obj) {
-                                if (wc_attribute_label($slug) == $label) {
-                                    $tax_name = strpos($slug, 'pa_') === 0 ? 'attribute_' . $slug : 'attribute_' . $slug;
-                                    $b_var_data[$tax_name] = $attr_val;
-                                    break;
+                        foreach ($selection as $attr_key => $attr_val) {
+                            if (strpos($attr_key, 'attribute_') === 0) {
+                                $b_var_data[$attr_key] = sanitize_text_field($attr_val);
+                            } else {
+                                foreach ($attributes as $slug => $attr_obj) {
+                                    if (wc_attribute_label($slug) == $attr_key) {
+                                        $b_var_data['attribute_' . $slug] = sanitize_text_field($attr_val);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -1244,21 +1253,21 @@ function handle_bundle_add_to_cart_ajax() {
             foreach ($bundle_info['selections'] as $selection) {
                 $var_data = array();
                 
-                // Map labels to internal slugs (same as handle_process_express_checkout)
-                foreach ($selection as $label => $v) {
-                    $matched = false;
-                    foreach ($attributes as $slug => $attr_obj) {
-                        if (wc_attribute_label($slug) == $label) {
-                            $tax_name = strpos($slug, 'pa_') === 0 ? 'attribute_' . $slug : 'attribute_' . $slug;
-                            $var_data[$tax_name] = $v;
-                            $matched = true;
-                            break;
+                foreach ($selection as $attr_key => $v) {
+                    if (strpos($attr_key, 'attribute_') === 0) {
+                        $var_data[$attr_key] = sanitize_text_field($v);
+                    } else {
+                        $matched = false;
+                        foreach ($attributes as $slug => $attr_obj) {
+                            if (wc_attribute_label($slug) == $attr_key) {
+                                $var_data['attribute_' . $slug] = sanitize_text_field($v);
+                                $matched = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!$matched) {
-                        // Fallback if no label match (maybe it was already a slug)
-                        $tax_name = (strpos($label, 'attribute_') === 0) ? $label : 'attribute_' . $label;
-                        $var_data[$tax_name] = $v;
+                        if (!$matched) {
+                            $var_data['attribute_' . $attr_key] = sanitize_text_field($v);
+                        }
                     }
                 }
 
